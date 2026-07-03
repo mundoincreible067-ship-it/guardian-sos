@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'services/location_service.dart';
+import 'services/flash_service.dart';
 import 'services/messaging_service.dart';
 import 'services/call_service.dart';
 import '../features/contacts/data/contacts_repository.dart';
@@ -9,6 +10,10 @@ import '../core/constants/emergency_numbers.dart';
 
 final locationServiceProvider = Provider((ref) => LocationService());
 final audioPlayerProvider = Provider((ref) => AudioPlayer());
+final flashServiceProvider = Provider((ref) => FlashService());
+
+/// Flash estroboscópico real al activar el SOS
+final flashEnabledProvider = StateProvider<bool>((ref) => true);
 final messagingServiceProvider = Provider((ref) => MessagingService());
 final callServiceProvider = Provider((ref) => CallService());
 final contactsRepositoryProvider = Provider((ref) => ContactsRepository());

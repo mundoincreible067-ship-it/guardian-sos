@@ -41,6 +41,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   void dispose() {
     _countdownTimer?.cancel();
     _vibrationTimer?.cancel();
+    ref.read(flashServiceProvider).stopStrobe();
     _ringController.dispose();
     _btnController.dispose();
     _iconController.dispose();
@@ -50,7 +51,8 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
 
   Timer? _vibrationTimer;
 
-  void _handleLongPress() {
+  void _handleActivation() {
+    HapticFeedback.mediumImpact();
     final instant = ref.read(instantSendProvider);
     if (instant) {
       _triggerSos();
@@ -94,6 +96,9 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     }
     if (ref.read(alarmEnabledProvider)) {
       _startAlarm();
+    }
+    if (ref.read(flashEnabledProvider)) {
+      ref.read(flashServiceProvider).startStrobe();
     }
 
     final locationService = ref.read(locationServiceProvider);
@@ -166,6 +171,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     ref.read(sosActiveProvider.notifier).state = false;
     _stopVibration();
     _stopAlarm();
+    ref.read(flashServiceProvider).stopStrobe();
   }
 
   Future<void> _callPolice() async {
@@ -245,7 +251,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onLongPress: _handleLongPress,
+          onTap: _handleActivation,
           child: SizedBox(
             width: 260,
             height: 260,
@@ -286,7 +292,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
                             children: [
                               Transform.translate(
                                 offset: Offset(0, -iconOffset),
-                                child: const Text('🚨', style: TextStyle(fontSize: 34)),
+                                child: const Icon(Icons.warning_rounded, color: Colors.white, size: 34),
                               ),
                               const SizedBox(height: 4),
                               Text('AYUDA', style: GoogleFonts.spaceGrotesk(
@@ -304,7 +310,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
           ),
         ),
         const SizedBox(height: 10),
-        Text('Mantén presionado para activar', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
+        Text('Toca para activar', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
         const SizedBox(height: 22),
         _buildPoliceButton(),
       ],
@@ -356,7 +362,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('🚔', style: TextStyle(fontSize: 18)),
+                const Icon(Icons.local_police_rounded, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
                 Text('LLAMAR POLICÍA', style: GoogleFonts.inter(
                   color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.5,

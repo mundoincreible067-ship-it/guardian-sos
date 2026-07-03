@@ -73,7 +73,12 @@ class SettingsScreen extends ConsumerWidget {
                 value: alarmOn,
                 onChanged: (v) => ref.read(alarmEnabledProvider.notifier).state = v,
               ),
-              const _SwitchTilePending(title: 'Flash estroboscópico'),
+              _RealSwitchTile(
+                title: 'Flash estroboscópico',
+                subtitle: 'La linterna parpadea mientras el SOS está activo',
+                value: ref.watch(flashEnabledProvider),
+                onChanged: (v) => ref.read(flashEnabledProvider.notifier).state = v,
+              ),
               const _SwitchTilePending(title: 'Grabar audio'),
               const _SwitchTilePending(title: 'Grabar video'),
               const _SwitchTilePending(title: 'Seguimiento en vivo (30 min)'),

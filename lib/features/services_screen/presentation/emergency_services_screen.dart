@@ -93,6 +93,34 @@ class EmergencyServicesScreen extends ConsumerWidget {
   }
 }
 
+/// Mapea cada servicio a un ícono de Material Design (vectorial, sin emoji).
+IconData _iconForService(String id) {
+  switch (id) {
+    case 'police':
+      return Icons.local_police_rounded;
+    case 'ambulance':
+      return Icons.medical_services_rounded;
+    case 'firefighters':
+      return Icons.local_fire_department_rounded;
+    case 'redcross':
+      return Icons.health_and_safety_rounded;
+    case 'civilprotection':
+      return Icons.shield_rounded;
+    case 'guardianacional':
+      return Icons.security_rounded;
+    case 'women':
+      return Icons.woman_rounded;
+    case 'children':
+      return Icons.child_care_rounded;
+    case 'psychological':
+      return Icons.psychology_rounded;
+    case 'roadrescue':
+      return Icons.car_repair_rounded;
+    default:
+      return Icons.emergency_rounded;
+  }
+}
+
 class _ServiceCard extends StatefulWidget {
   final EmergencyService service;
   final int index;
@@ -151,7 +179,7 @@ class _ServiceCardState extends State<_ServiceCard> with SingleTickerProviderSta
                         gradient: const LinearGradient(colors: [AppColors.accentPink, AppColors.primaryPurple, AppColors.accentCyan]),
                         boxShadow: [BoxShadow(color: glow.withOpacity(0.5), blurRadius: 12, spreadRadius: 1)],
                       ),
-                      child: Center(child: Text(widget.service.emoji, style: const TextStyle(fontSize: 22))),
+                      child: Center(child: Icon(_iconForService(widget.service.id), color: Colors.white, size: 22)),
                     ),
                   );
                 },
