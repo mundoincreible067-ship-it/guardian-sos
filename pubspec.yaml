@@ -55,7 +55,7 @@ dependencies:
   sensors_plus: ^5.0.1
 
   # Reconocimiento de voz
-  speech_to_text: ^7.0.0
+  speech_to_text: ^6.6.2
 
   # Almacenamiento local
   shared_preferences: ^2.2.3
