@@ -11,6 +11,9 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final countdown = ref.watch(countdownSecondsProvider);
+    final instantSend = ref.watch(instantSendProvider);
+    final vibrationOn = ref.watch(vibrationEnabledProvider);
+    final alarmOn = ref.watch(alarmEnabledProvider);
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -21,39 +24,59 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 66, bottom: 24),
             children: [
-              const _SectionHeader('Cuenta regresiva de SOS'),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('$countdown segundos', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
-                    SliderTheme(
-                      data: SliderThemeData(
-                        activeTrackColor: AppColors.accentPink,
-                        inactiveTrackColor: AppColors.glassLight,
-                        thumbColor: AppColors.accentPink,
-                        overlayColor: AppColors.accentPink.withOpacity(0.15),
-                      ),
-                      child: Slider(
-                        value: countdown.toDouble(),
-                        min: 3,
-                        max: 15,
-                        divisions: 12,
-                        label: '$countdown s',
-                        onChanged: (v) => ref.read(countdownSecondsProvider.notifier).state = v.round(),
-                      ),
-                    ),
-                  ],
-                ),
+              const _SectionHeader('Activación del botón SOS'),
+              _RealSwitchTile(
+                title: 'Envío instantáneo',
+                subtitle: 'El botón manda el SOS de inmediato, sin espera',
+                value: instantSend,
+                onChanged: (v) => ref.read(instantSendProvider.notifier).state = v,
               ),
+              if (!instantSend) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text('Cuenta regresiva: $countdown segundos',
+                          style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                      SliderTheme(
+                        data: SliderThemeData(
+                          activeTrackColor: AppColors.accentPink,
+                          inactiveTrackColor: AppColors.glassLight,
+                          thumbColor: AppColors.accentPink,
+                          overlayColor: AppColors.accentPink.withOpacity(0.15),
+                        ),
+                        child: Slider(
+                          value: countdown.toDouble(),
+                          min: 3,
+                          max: 15,
+                          divisions: 12,
+                          label: '$countdown s',
+                          onChanged: (v) => ref.read(countdownSecondsProvider.notifier).state = v.round(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const _SectionHeader('Funciones automáticas'),
-              const _SwitchTile(title: 'Activar flash estroboscópico'),
-              const _SwitchTile(title: 'Activar alarma sonora'),
-              const _SwitchTile(title: 'Grabar audio'),
-              const _SwitchTile(title: 'Grabar video'),
-              const _SwitchTile(title: 'Seguimiento en vivo (30 min)'),
-              const _SwitchTile(title: 'Vibración'),
+              _RealSwitchTile(
+                title: 'Vibración',
+                subtitle: 'El teléfono vibra al activar el SOS',
+                value: vibrationOn,
+                onChanged: (v) => ref.read(vibrationEnabledProvider.notifier).state = v,
+              ),
+              _RealSwitchTile(
+                title: 'Alarma sonora',
+                subtitle: 'Sirena en bucle mientras el SOS está activo',
+                value: alarmOn,
+                onChanged: (v) => ref.read(alarmEnabledProvider.notifier).state = v,
+              ),
+              const _SwitchTilePending(title: 'Flash estroboscópico'),
+              const _SwitchTilePending(title: 'Grabar audio'),
+              const _SwitchTilePending(title: 'Grabar video'),
+              const _SwitchTilePending(title: 'Seguimiento en vivo (30 min)'),
             ],
           ),
         ),
@@ -77,22 +100,20 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _SwitchTile extends StatefulWidget {
+/// Interruptor conectado a una función real de la app.
+class _RealSwitchTile extends StatelessWidget {
   final String title;
-  const _SwitchTile({required this.title});
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
 
-  @override
-  State<_SwitchTile> createState() => _SwitchTileState();
-}
-
-class _SwitchTileState extends State<_SwitchTile> {
-  bool value = true;
+  const _RealSwitchTile({required this.title, required this.subtitle, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.glassLight,
         borderRadius: BorderRadius.circular(14),
@@ -100,8 +121,49 @@ class _SwitchTileState extends State<_SwitchTile> {
       ),
       child: Row(
         children: [
-          Expanded(child: Text(widget.title, style: GoogleFonts.inter(color: Colors.white, fontSize: 14))),
-          Switch(value: value, onChanged: (v) => setState(() => value = v)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(subtitle, style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
+              ],
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// Interruptor de una función que aún no está conectada (próxima entrega).
+class _SwitchTilePending extends StatelessWidget {
+  final String title;
+  const _SwitchTilePending({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.glassLight.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 14, fontWeight: FontWeight.w600)),
+                Text('Próxima entrega', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
+              ],
+            ),
+          ),
+          Switch(value: false, onChanged: null),
         ],
       ),
     );

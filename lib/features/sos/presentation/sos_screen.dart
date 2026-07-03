@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/location_service.dart';
@@ -38,11 +40,23 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   @override
   void dispose() {
     _countdownTimer?.cancel();
+    _vibrationTimer?.cancel();
     _ringController.dispose();
     _btnController.dispose();
     _iconController.dispose();
     _dotController.dispose();
     super.dispose();
+  }
+
+  Timer? _vibrationTimer;
+
+  void _handleLongPress() {
+    final instant = ref.read(instantSendProvider);
+    if (instant) {
+      _triggerSos();
+    } else {
+      _startCountdown();
+    }
   }
 
   void _startCountdown() {
@@ -75,6 +89,13 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     });
     ref.read(sosActiveProvider.notifier).state = true;
 
+    if (ref.read(vibrationEnabledProvider)) {
+      _startVibrationPattern();
+    }
+    if (ref.read(alarmEnabledProvider)) {
+      _startAlarm();
+    }
+
     final locationService = ref.read(locationServiceProvider);
     final messagingService = ref.read(messagingServiceProvider);
     final contactsRepo = ref.read(contactsRepositoryProvider);
@@ -106,6 +127,29 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     }
   }
 
+  void _startVibrationPattern() {
+    HapticFeedback.heavyImpact();
+    _vibrationTimer = Timer.periodic(const Duration(milliseconds: 700), (_) {
+      HapticFeedback.heavyImpact();
+    });
+  }
+
+  void _stopVibration() {
+    _vibrationTimer?.cancel();
+    _vibrationTimer = null;
+  }
+
+  Future<void> _startAlarm() async {
+    final player = ref.read(audioPlayerProvider);
+    await player.setReleaseMode(ReleaseMode.loop);
+    await player.play(AssetSource('sounds/alarm.wav'));
+  }
+
+  Future<void> _stopAlarm() async {
+    final player = ref.read(audioPlayerProvider);
+    await player.stop();
+  }
+
   void _showSnack(String text, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -120,6 +164,8 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   void _cancelActiveSos() {
     setState(() => _sosSent = false);
     ref.read(sosActiveProvider.notifier).state = false;
+    _stopVibration();
+    _stopAlarm();
   }
 
   Future<void> _callPolice() async {
@@ -199,7 +245,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onLongPress: _startCountdown,
+          onLongPress: _handleLongPress,
           child: SizedBox(
             width: 260,
             height: 260,
