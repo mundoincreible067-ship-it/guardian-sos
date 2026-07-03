@@ -12,7 +12,7 @@ final callServiceProvider = Provider((ref) => CallService());
 final contactsRepositoryProvider = Provider((ref) => ContactsRepository());
 
 /// Tema: claro / oscuro / sistema
-final themeModeProvider = StateProvider<ThemeModeOption>((ref) => ThemeModeOption.system);
+final themeModeProvider = StateProvider<ThemeModeOption>((ref) => ThemeModeOption.dark);
 
 enum ThemeModeOption { light, dark, system }
 
