@@ -66,3 +66,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/sounds/
+
+# Forzamos esta versión específica de una pieza interna del paquete `record`
+# porque la más reciente (0.7.2) tiene un bug de compatibilidad conocido con
+# record_platform_interface que rompe la compilación, incluso en Android
+# (Flutter arma todas las piezas de plataforma del paquete aunque no se usen).
+dependency_overrides:
+  record_linux: ^0.7.1
