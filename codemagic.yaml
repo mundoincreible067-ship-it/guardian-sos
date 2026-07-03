@@ -1,0 +1,16 @@
+workflows:
+  guardian-sos-android:
+    name: Guardian SOS - Android APK
+    max_build_duration: 30
+    environment:
+      flutter: stable
+    scripts:
+      - name: Obtener dependencias
+        script: flutter pub get
+      - name: Compilar APK de prueba (debug, más rápido)
+        script: flutter build apk --debug
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+    publishing:
+      email:
+        recipients: []
