@@ -6,30 +6,26 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
+# NOTA: este pubspec.yaml se dejó deliberadamente MÍNIMO — solo con los
+# paquetes que el código en lib/ usa de verdad hoy — para lograr una
+# primera compilación limpia. La lista de paquetes para las funciones
+# pendientes (cámara, grabación, mapa, notificaciones, voz, QR, etc.)
+# está documentada en el README bajo "Pendiente para la siguiente
+# iteración". Cada uno se agrega y se prueba de uno en uno cuando
+# construyamos esa función, para detectar de inmediato si alguno rompe
+# la compilación (varios paquetes nativos de Android aún no son
+# compatibles con Android Gradle Plugin 9, lanzado recientemente).
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
 
-  # State management / arquitectura
+  # State management
   flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
-  freezed_annotation: ^2.4.1
-  json_annotation: ^4.9.0
-  get_it: ^7.7.0
 
-  # Firebase (desactivado temporalmente hasta conectar el proyecto real con
-  # `flutterfire configure` — ver README. Actívalo ahí cuando toque esa parte.)
-  # firebase_core: ^2.31.0
-  # firebase_auth: ^4.19.6
-  # cloud_firestore: ^4.17.3
-  # firebase_storage: ^11.7.3
-  # firebase_messaging: ^14.9.2
-
-  # Ubicación y mapas
+  # Ubicación
   geolocator: ^12.0.0
   geocoding: ^3.0.0
-  google_maps_flutter: ^2.6.1
 
   # Permisos
   permission_handler: ^11.3.1
@@ -38,63 +34,20 @@ dependencies:
   url_launcher: ^6.3.0
   telephony: ^0.2.0
 
-  # Contactos del teléfono
-  flutter_contacts: ^1.1.9+2
-
-  # Cámara y multimedia
-  camera: ^0.11.0+2
-  record: ^5.1.2
-  audioplayers: ^6.0.0
-  torch_light: ^1.1.0
-
-  # Notificaciones
-  flutter_local_notifications: ^17.2.1+2
-
-  # Sensores (detección de caídas)
-  sensors_plus: ^5.0.1
-
-  # Reconocimiento de voz
-  speech_to_text: ^6.6.2
-
   # Almacenamiento local
   shared_preferences: ^2.2.3
-  sqflite: ^2.3.3+1
-  path_provider: ^2.1.3
-
-  # QR
-  qr_flutter: ^4.1.0
 
   # Batería
   battery_plus: ^6.0.1
 
   # Utilidades
   intl: ^0.19.0
-  image_picker: ^1.1.2
-  vibration: ^2.0.0
-  device_info_plus: ^10.1.0
-  connectivity_plus: ^6.0.3
   uuid: ^4.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  build_runner: ^2.4.11
-  freezed: ^2.5.2
-  json_serializable: ^6.8.0
-  riverpod_generator: ^2.4.0
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/icons/
-    - assets/sounds/
-    - assets/images/
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Poppins-SemiBold.ttf
-          weight: 600
