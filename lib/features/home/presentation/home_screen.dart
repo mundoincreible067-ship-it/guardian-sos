@@ -18,17 +18,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
 
-  final _screens = const [
-    SosScreen(),
-    EmergencyServicesScreen(),
-    ContactsScreen(),
-    SettingsScreen(),
-  ];
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return const SosScreen();
+      case 1:
+        return const EmergencyServicesScreen();
+      case 2:
+        return const ContactsScreen();
+      case 3:
+      default:
+        return const SettingsScreen();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _screens),
+      // Antes usaba IndexedStack, que mantiene las 4 pantallas construidas
+      // y sus animaciones corriendo en segundo plano todo el tiempo, aunque
+      // no se estén viendo — eso era lo que ralentizaba la app. Ahora solo
+      // se construye (y anima) la pantalla que realmente se está mostrando.
+      body: _buildScreen(_index),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

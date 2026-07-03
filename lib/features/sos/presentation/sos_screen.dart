@@ -42,6 +42,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     _countdownTimer?.cancel();
     _vibrationTimer?.cancel();
     ref.read(flashServiceProvider).stopStrobe();
+    ref.read(audioRecordingServiceProvider).stopRecording();
     _ringController.dispose();
     _btnController.dispose();
     _iconController.dispose();
@@ -99,6 +100,9 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     }
     if (ref.read(flashEnabledProvider)) {
       ref.read(flashServiceProvider).startStrobe();
+    }
+    if (ref.read(recordAudioEnabledProvider)) {
+      ref.read(audioRecordingServiceProvider).startRecording();
     }
 
     final locationService = ref.read(locationServiceProvider);
@@ -166,12 +170,17 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     );
   }
 
-  void _cancelActiveSos() {
+  void _cancelActiveSos() async {
     setState(() => _sosSent = false);
     ref.read(sosActiveProvider.notifier).state = false;
     _stopVibration();
     _stopAlarm();
     ref.read(flashServiceProvider).stopStrobe();
+
+    final path = await ref.read(audioRecordingServiceProvider).stopRecording();
+    if (path != null && mounted) {
+      _showSnack('Audio guardado en el teléfono', AppColors.successGreen);
+    }
   }
 
   Future<void> _callPolice() async {

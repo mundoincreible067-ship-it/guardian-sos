@@ -79,7 +79,12 @@ class SettingsScreen extends ConsumerWidget {
                 value: ref.watch(flashEnabledProvider),
                 onChanged: (v) => ref.read(flashEnabledProvider.notifier).state = v,
               ),
-              const _SwitchTilePending(title: 'Grabar audio'),
+              _RealSwitchTile(
+                title: 'Grabar audio',
+                subtitle: 'Graba el ambiente como evidencia mientras el SOS está activo',
+                value: ref.watch(recordAudioEnabledProvider),
+                onChanged: (v) => ref.read(recordAudioEnabledProvider.notifier).state = v,
+              ),
               const _SwitchTilePending(title: 'Grabar video'),
               const _SwitchTilePending(title: 'Seguimiento en vivo (30 min)'),
             ],

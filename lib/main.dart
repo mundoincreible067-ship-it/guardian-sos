@@ -5,7 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 // import 'firebase_options.dart'; // generado por `flutterfire configure` (ver README)
 import 'core/theme/app_theme.dart';
 import 'core/providers.dart';
-import 'features/home/presentation/home_screen.dart';
+import 'features/splash/presentation/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +49,7 @@ class GuardianSosApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }

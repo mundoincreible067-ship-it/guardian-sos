@@ -22,7 +22,7 @@ class _NeonBackgroundState extends State<NeonBackground> with TickerProviderStat
     super.initState();
     _glowController = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat(reverse: true);
     final rnd = Random(7);
-    _particles = List.generate(6, (i) => _Particle(
+    _particles = List.generate(4, (i) => _Particle(
           left: rnd.nextDouble(),
           delaySeconds: i * 1.1,
           controller: AnimationController(vsync: this, duration: const Duration(seconds: 6))
