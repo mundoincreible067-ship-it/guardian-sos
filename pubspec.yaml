@@ -72,4 +72,4 @@ flutter:
 # record_platform_interface que rompe la compilación, incluso en Android
 # (Flutter arma todas las piezas de plataforma del paquete aunque no se usen).
 dependency_overrides:
-  record_linux: ^0.7.1
+  record_linux: 0.7.1
