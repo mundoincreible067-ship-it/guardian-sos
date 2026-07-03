@@ -5,6 +5,23 @@ allprojects {
     }
 }
 
+// Workaround para paquetes de Flutter sin mantenimiento reciente (como
+// `telephony`) que todavía no declaran "namespace" en su propio
+// android/build.gradle, algo que las versiones modernas de Android Gradle
+// Plugin exigen. Esto se lo asigna automáticamente usando su propio
+// identificador, sin tener que editar el paquete.
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
+                }
+            }
+        }
+    }
+}
+
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
