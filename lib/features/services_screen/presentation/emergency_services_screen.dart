@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/providers.dart';
 import '../../../core/constants/emergency_numbers.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/neon_background.dart';
 
 class EmergencyServicesScreen extends ConsumerWidget {
   const EmergencyServicesScreen({super.key});
@@ -14,29 +15,33 @@ class EmergencyServicesScreen extends ConsumerWidget {
     final callService = ref.watch(callServiceProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(title: const Text('Servicios de Emergencia')),
-      body: Container(
-        decoration: const BoxDecoration(color: AppColors.night),
-        child: GridView.builder(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.05,
+      extendBodyBehindAppBar: true,
+      body: NeonBackground(
+        child: SafeArea(
+          child: GridView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 90, 20, 24),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+              childAspectRatio: 1.05,
+            ),
+            itemCount: services.length,
+            itemBuilder: (context, index) {
+              final service = services[index];
+              return _ServiceCard(
+                service: service,
+                index: index,
+                onTap: () async {
+                  await callService.requestCallPermission();
+                  await callService.call(service.currentNumber);
+                },
+                onLongPress: () => _editNumber(context, ref, service),
+              );
+            },
           ),
-          itemCount: services.length,
-          itemBuilder: (context, index) {
-            final service = services[index];
-            return _ServiceCard(
-              service: service,
-              onTap: () async {
-                await callService.requestCallPermission();
-                await callService.call(service.currentNumber);
-              },
-              onLongPress: () => _editNumber(context, ref, service),
-            );
-          },
         ),
       ),
     );
@@ -46,7 +51,7 @@ class EmergencyServicesScreen extends ConsumerWidget {
     final controller = TextEditingController(text: service.currentNumber);
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.nightElevated,
+      backgroundColor: const Color(0xFF1A1A3E),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
@@ -54,25 +59,17 @@ class EmergencyServicesScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Editar número · ${service.name}', style: GoogleFonts.spaceGrotesk(
-              color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w600,
-            )),
+            Text('Editar número · ${service.name}', style: GoogleFonts.spaceGrotesk(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               keyboardType: TextInputType.phone,
-              style: GoogleFonts.inter(color: AppColors.textPrimary),
+              style: GoogleFonts.inter(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Número de teléfono',
                 labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.12)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: AppColors.calm),
-                ),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.glassBorder)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.accentCyan)),
               ),
             ),
             const SizedBox(height: 20),
@@ -96,46 +93,73 @@ class EmergencyServicesScreen extends ConsumerWidget {
   }
 }
 
-class _ServiceCard extends StatelessWidget {
+class _ServiceCard extends StatefulWidget {
   final EmergencyService service;
+  final int index;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
-  const _ServiceCard({required this.service, required this.onTap, required this.onLongPress});
+  const _ServiceCard({required this.service, required this.index, required this.onTap, required this.onLongPress});
+
+  @override
+  State<_ServiceCard> createState() => _ServiceCardState();
+}
+
+class _ServiceCardState extends State<_ServiceCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400))
+      ..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.nightCard,
-      borderRadius: BorderRadius.circular(22),
+      color: AppColors.glassLight,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-        onTap: onTap,
-        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(20),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
-          ),
-          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.glassBorder)),
+          padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: AppColors.signal.withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(child: Text(service.emoji, style: const TextStyle(fontSize: 26))),
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  final scale = 1.0 + _controller.value * 0.08;
+                  final glow = Color.lerp(AppColors.primaryPurple, AppColors.accentPink, _controller.value)!;
+                  return Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(colors: [AppColors.accentPink, AppColors.primaryPurple, AppColors.accentCyan]),
+                        boxShadow: [BoxShadow(color: glow.withOpacity(0.5), blurRadius: 12, spreadRadius: 1)],
+                      ),
+                      child: Center(child: Text(widget.service.emoji, style: const TextStyle(fontSize: 22))),
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 12),
-              Text(service.name, textAlign: TextAlign.center, style: GoogleFonts.inter(
-                color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13,
-              )),
-              const SizedBox(height: 4),
-              Text(service.currentNumber, style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
+              const SizedBox(height: 10),
+              Text(widget.service.name, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+              const SizedBox(height: 3),
+              Text(widget.service.currentNumber, style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 10)),
             ],
           ),
         ),

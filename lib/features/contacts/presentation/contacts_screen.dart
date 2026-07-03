@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/neon_background.dart';
 import '../domain/contact_model.dart';
 
 class ContactsScreen extends ConsumerWidget {
@@ -14,8 +15,10 @@ class ContactsScreen extends ConsumerWidget {
     final contactsAsync = ref.watch(contactsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.night,
+      backgroundColor: AppColors.primaryDark,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text('Contactos de Emergencia'),
         actions: [
           IconButton(
@@ -26,11 +29,13 @@ class ContactsScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.signal,
+        backgroundColor: AppColors.accentPink,
         onPressed: () => _showEditor(context, ref),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: contactsAsync.when(
+      body: NeonBackground(
+        child: SafeArea(
+          child: contactsAsync.when(
         data: (contacts) {
           if (contacts.isEmpty) {
             return Center(
@@ -39,23 +44,23 @@ class ContactsScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 66, 16, 16),
             itemCount: contacts.length,
             itemBuilder: (context, i) {
               final c = contacts[i];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.nightCard,
+                  color: AppColors.glassLight,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.white.withOpacity(0.06)),
+                  border: Border.all(color: AppColors.glassBorder),
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   leading: CircleAvatar(
-                    backgroundColor: AppColors.calm.withOpacity(0.15),
+                    backgroundColor: AppColors.accentCyan.withOpacity(0.2),
                     child: Text(c.name.isNotEmpty ? c.name[0].toUpperCase() : '?',
-                        style: GoogleFonts.spaceGrotesk(color: AppColors.calm, fontWeight: FontWeight.w700)),
+                        style: GoogleFonts.spaceGrotesk(color: AppColors.accentCyan, fontWeight: FontWeight.w700)),
                   ),
                   title: Text(c.name, style: GoogleFonts.inter(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
                   subtitle: Text('${c.relation} · ${c.phone}${c.isPrimary ? ' · Principal' : ''}',
@@ -68,7 +73,7 @@ class ContactsScreen extends ConsumerWidget {
                         onPressed: () => _showEditor(context, ref, existing: c),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.signal, size: 20),
+                        icon: const Icon(Icons.delete_outline, color: AppColors.accentPink, size: 20),
                         onPressed: () async {
                           await ref.read(contactsRepositoryProvider).delete(c.id);
                           ref.invalidate(contactsProvider);
@@ -81,8 +86,10 @@ class ContactsScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.signal)),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accentPink)),
         error: (e, _) => Center(child: Text('Error: $e', style: const TextStyle(color: AppColors.textMuted))),
+          ),
+        ),
       ),
     );
   }
@@ -90,7 +97,7 @@ class ContactsScreen extends ConsumerWidget {
   Future<void> _importFromDevice(BuildContext context, WidgetRef ref) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.nightElevated,
+        backgroundColor: const Color(0xFF1A1A3E),
         content: Text('Selecciona un contacto de tu agenda (requiere permiso de Contactos)',
             style: GoogleFonts.inter(color: AppColors.textPrimary)),
       ),
@@ -113,14 +120,14 @@ class ContactsScreen extends ConsumerWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: AppColors.calm),
+            borderSide: const BorderSide(color: AppColors.accentCyan),
           ),
         );
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.nightElevated,
+      backgroundColor: const Color(0xFF1A1A3E),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(left: 20, right: 20, top: 24, bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
