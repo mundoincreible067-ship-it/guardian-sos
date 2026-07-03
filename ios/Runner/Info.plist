@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>es</string>
+	<key>CFBundleDisplayName</key>
+	<string>Guardian SOS</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleName</key>
+	<string>guardian_sos</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+
+	<!-- Permisos: cada uno DEBE tener una descripción o Apple rechaza el build -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Guardian SOS necesita tu ubicación para enviarla a tus contactos de emergencia cuando actives el botón SOS.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Guardian SOS necesita tu ubicación en segundo plano para el seguimiento en vivo durante una emergencia activa.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Guardian SOS necesita tu ubicación en segundo plano para el seguimiento en vivo durante una emergencia activa.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Guardian SOS usa la cámara para grabar video automáticamente durante una emergencia.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Guardian SOS usa el micrófono para grabar audio automáticamente durante una emergencia.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Guardian SOS necesita acceso a tus contactos para que puedas importarlos como contactos de emergencia.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Guardian SOS necesita acceso a tus fotos para asignar una fotografía a tus contactos y perfil médico.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Guardian SOS guarda los videos y audios grabados durante una emergencia en tu galería.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Guardian SOS escucha frases como "SOS" o "Ayuda" para activar la emergencia por voz.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Guardian SOS envía notificaciones de alertas de emergencia y seguimiento.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>audio</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+</dict>
+</plist>
