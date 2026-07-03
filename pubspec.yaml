@@ -18,12 +18,13 @@ dependencies:
   json_annotation: ^4.9.0
   get_it: ^7.7.0
 
-  # Firebase
-  firebase_core: ^2.31.0
-  firebase_auth: ^4.19.6
-  cloud_firestore: ^4.17.3
-  firebase_storage: ^11.7.3
-  firebase_messaging: ^14.9.2
+  # Firebase (desactivado temporalmente hasta conectar el proyecto real con
+  # `flutterfire configure` — ver README. Actívalo ahí cuando toque esa parte.)
+  # firebase_core: ^2.31.0
+  # firebase_auth: ^4.19.6
+  # cloud_firestore: ^4.17.3
+  # firebase_storage: ^11.7.3
+  # firebase_messaging: ^14.9.2
 
   # Ubicación y mapas
   geolocator: ^12.0.0
@@ -35,11 +36,9 @@ dependencies:
 
   # Comunicaciones (compositores, no envío silencioso — ver README)
   url_launcher: ^6.3.0
-  flutter_sms: ^2.3.3
   telephony: ^0.2.0
 
   # Contactos del teléfono
-  contacts_service: ^0.6.3
   flutter_contacts: ^1.1.9+2
 
   # Cámara y multimedia
