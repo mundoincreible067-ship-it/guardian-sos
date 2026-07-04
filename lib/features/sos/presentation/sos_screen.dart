@@ -4,6 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:uuid/uuid.dart';
+import '../../history/data/history_repository.dart';
+import '../../history/domain/history_entry.dart';
+import '../../history/presentation/history_screen.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/location_service.dart';
@@ -51,6 +55,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   }
 
   Timer? _vibrationTimer;
+  SosSnapshot? _lastSnapshot;
 
   void _handleActivation() {
     HapticFeedback.mediumImpact();
@@ -114,6 +119,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
 
     try {
       final SosSnapshot snapshot = await locationService.captureSosSnapshot();
+      _lastSnapshot = snapshot;
       final message = messagingService.buildEmergencyMessage(snapshot);
       final primaryContacts = await contactsRepo.getPrimaryPair();
       final phones = primaryContacts.map((c) => c.phone).toList();
@@ -178,6 +184,21 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     ref.read(flashServiceProvider).stopStrobe();
 
     final path = await ref.read(audioRecordingServiceProvider).stopRecording();
+
+    if (_lastSnapshot != null) {
+      final entry = HistoryEntry(
+        id: const Uuid().v4(),
+        timestamp: _lastSnapshot!.timestamp,
+        latitude: _lastSnapshot!.latitude,
+        longitude: _lastSnapshot!.longitude,
+        address: _lastSnapshot!.address,
+        batteryLevel: _lastSnapshot!.batteryLevel,
+        audioPath: path,
+      );
+      await ref.read(historyRepositoryProvider).add(entry);
+      ref.invalidate(historyProvider);
+    }
+
     if (path != null && mounted) {
       _showSnack('Audio guardado en el teléfono', AppColors.successGreen);
     }
