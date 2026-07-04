@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:uuid/uuid.dart';
+import 'package:geolocator/geolocator.dart' show Position;
+import 'package:latlong2/latlong.dart' show LatLng;
 import '../../history/data/history_repository.dart';
 import '../../history/domain/history_entry.dart';
 import '../../history/presentation/history_screen.dart';
+import '../../map/presentation/map_screen.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/location_service.dart';
@@ -46,6 +49,8 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   void dispose() {
     _countdownTimer?.cancel();
     _vibrationTimer?.cancel();
+    _trackingSubscription?.cancel();
+    _resendTimer?.cancel();
     ref.read(flashServiceProvider).stopStrobe();
     ref.read(audioRecordingServiceProvider).stopRecording();
     BackgroundGuardService.stop();
@@ -57,6 +62,9 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   }
 
   Timer? _vibrationTimer;
+  StreamSubscription<Position>? _trackingSubscription;
+  Timer? _resendTimer;
+  int _resendCount = 0;
   SosSnapshot? _lastSnapshot;
 
   void _handleActivation() {
@@ -112,6 +120,12 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       ref.read(audioRecordingServiceProvider).startRecording();
       BackgroundGuardService.start();
     }
+    if (ref.read(liveTrackingEnabledProvider)) {
+      _startLiveTracking();
+      if (!ref.read(recordAudioEnabledProvider)) {
+        BackgroundGuardService.start(); // por si el audio está apagado
+      }
+    }
 
     final locationService = ref.read(locationServiceProvider);
     final messagingService = ref.read(messagingServiceProvider);
@@ -143,6 +157,52 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       if (!mounted) return;
       _showSnack('Error al enviar SOS: $e', AppColors.dangerRedDeep);
     }
+  }
+
+  void _startLiveTracking() {
+    ref.read(routePointsProvider.notifier).state = [];
+    final locationService = ref.read(locationServiceProvider);
+
+    _trackingSubscription = locationService.liveTrackingStream().listen((position) {
+      final points = [...ref.read(routePointsProvider), LatLng(position.latitude, position.longitude)];
+      ref.read(routePointsProvider.notifier).state = points;
+    });
+
+    // Reenvía la ubicación actualizada a los contactos cada 20s, hasta 30 min
+    // (90 veces × 20s = 30 min), o hasta que se cancele el SOS.
+    _resendCount = 0;
+    _resendTimer = Timer.periodic(const Duration(seconds: 20), (timer) async {
+      _resendCount++;
+      if (_resendCount > 90) {
+        timer.cancel();
+        return;
+      }
+      await _resendLocationUpdate();
+    });
+  }
+
+  Future<void> _resendLocationUpdate() async {
+    try {
+      final locationService = ref.read(locationServiceProvider);
+      final messagingService = ref.read(messagingServiceProvider);
+      final contactsRepo = ref.read(contactsRepositoryProvider);
+
+      final snapshot = await locationService.captureSosSnapshot();
+      final message = 'Actualización de ubicación en vivo:\n${messagingService.buildEmergencyMessage(snapshot)}';
+      final primaryContacts = await contactsRepo.getPrimaryPair();
+      for (final c in primaryContacts) {
+        await messagingService.openWhatsApp(c.phone, message);
+      }
+    } catch (_) {
+      // Si falla un envío puntual, se sigue intentando en el próximo ciclo.
+    }
+  }
+
+  void _stopLiveTracking() {
+    _trackingSubscription?.cancel();
+    _trackingSubscription = null;
+    _resendTimer?.cancel();
+    _resendTimer = null;
   }
 
   void _startVibrationPattern() {
@@ -184,6 +244,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     ref.read(sosActiveProvider.notifier).state = false;
     _stopVibration();
     _stopAlarm();
+    _stopLiveTracking();
     ref.read(flashServiceProvider).stopStrobe();
 
     final path = await ref.read(audioRecordingServiceProvider).stopRecording();
@@ -469,7 +530,20 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
         Text('SOS ACTIVO', style: GoogleFonts.spaceGrotesk(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: 1)),
         const SizedBox(height: 8),
         Text('Seguimiento en vivo activado', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 13)),
-        const SizedBox(height: 32),
+        const SizedBox(height: 20),
+        OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MapScreen()),
+          ),
+          icon: const Icon(Icons.map_rounded, color: AppColors.accentCyan, size: 18),
+          label: Text('Ver mapa', style: GoogleFonts.inter(color: AppColors.accentCyan, fontWeight: FontWeight.w600)),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: AppColors.accentCyan),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+        const SizedBox(height: 12),
         ElevatedButton(
           onPressed: _cancelActiveSos,
           child: const Text('DETENER SOS'),

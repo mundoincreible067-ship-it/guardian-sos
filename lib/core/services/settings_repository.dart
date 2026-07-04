@@ -8,6 +8,7 @@ class SettingsRepository {
   static const _kAlarm = 'settings_alarm';
   static const _kFlash = 'settings_flash';
   static const _kRecordAudio = 'settings_record_audio';
+  static const _kLiveTracking = 'settings_live_tracking';
   static const _kCountdownSeconds = 'settings_countdown_seconds';
 
   Future<SharedPreferences> get _prefs => SharedPreferences.getInstance();
@@ -17,6 +18,7 @@ class SettingsRepository {
   Future<void> setAlarm(bool v) async => (await _prefs).setBool(_kAlarm, v);
   Future<void> setFlash(bool v) async => (await _prefs).setBool(_kFlash, v);
   Future<void> setRecordAudio(bool v) async => (await _prefs).setBool(_kRecordAudio, v);
+  Future<void> setLiveTracking(bool v) async => (await _prefs).setBool(_kLiveTracking, v);
   Future<void> setCountdownSeconds(int v) async => (await _prefs).setInt(_kCountdownSeconds, v);
 
   /// Carga todos los ajustes guardados de una vez (con valores por defecto
@@ -29,6 +31,7 @@ class SettingsRepository {
       alarm: prefs.getBool(_kAlarm) ?? true,
       flash: prefs.getBool(_kFlash) ?? true,
       recordAudio: prefs.getBool(_kRecordAudio) ?? true,
+      liveTracking: prefs.getBool(_kLiveTracking) ?? true,
       countdownSeconds: prefs.getInt(_kCountdownSeconds) ?? 5,
     );
   }
@@ -41,6 +44,7 @@ class AppSettings {
   final bool alarm;
   final bool flash;
   final bool recordAudio;
+  final bool liveTracking;
   final int countdownSeconds;
 
   AppSettings({
@@ -49,6 +53,7 @@ class AppSettings {
     required this.alarm,
     required this.flash,
     required this.recordAudio,
+    required this.liveTracking,
     required this.countdownSeconds,
   });
 }

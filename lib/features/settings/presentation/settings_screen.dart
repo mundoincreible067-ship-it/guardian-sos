@@ -130,8 +130,16 @@ class SettingsScreen extends ConsumerWidget {
                   settingsRepo.setRecordAudio(v);
                 },
               ),
+              _RealSwitchTile(
+                title: 'Seguimiento en vivo',
+                subtitle: 'Dibuja tu recorrido en el mapa y reenvía tu ubicación cada 20s por 30 min',
+                value: ref.watch(liveTrackingEnabledProvider),
+                onChanged: (v) {
+                  ref.read(liveTrackingEnabledProvider.notifier).state = v;
+                  settingsRepo.setLiveTracking(v);
+                },
+              ),
               const _SwitchTilePending(title: 'Grabar video'),
-              const _SwitchTilePending(title: 'Seguimiento en vivo (30 min)'),
             ],
           ),
         ),

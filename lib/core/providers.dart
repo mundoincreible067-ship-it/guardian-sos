@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:latlong2/latlong.dart';
 import 'services/location_service.dart';
 import 'services/flash_service.dart';
 import 'services/audio_recording_service.dart';
@@ -19,6 +20,12 @@ final flashEnabledProvider = StateProvider<bool>((ref) => true);
 
 /// Grabación de audio real al activar el SOS
 final recordAudioEnabledProvider = StateProvider<bool>((ref) => true);
+
+/// Seguimiento en vivo real al activar el SOS
+final liveTrackingEnabledProvider = StateProvider<bool>((ref) => true);
+
+/// Puntos del recorrido durante el SOS activo, para dibujar la ruta en el mapa
+final routePointsProvider = StateProvider<List<LatLng>>((ref) => []);
 final messagingServiceProvider = Provider((ref) => MessagingService());
 final callServiceProvider = Provider((ref) => CallService());
 final contactsRepositoryProvider = Provider((ref) => ContactsRepository());
