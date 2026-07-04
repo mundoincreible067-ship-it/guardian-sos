@@ -56,6 +56,9 @@ dependencies:
   # Compartir archivos (grabaciones de audio)
   share_plus: ^10.1.4
 
+  # Mantener la grabación activa aunque se minimice la app
+  flutter_foreground_task: ^9.2.2
+
   # Utilidades
   intl: ^0.19.0
   uuid: ^4.4.0

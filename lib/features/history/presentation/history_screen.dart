@@ -45,6 +45,39 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     });
   }
 
+  Future<void> _deleteEntry(HistoryEntry entry) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A3E),
+        title: Text('¿Borrar este registro?', style: GoogleFonts.spaceGrotesk(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text('Esto borra también el audio grabado, si tiene. No se puede deshacer.',
+            style: GoogleFonts.inter(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Borrar', style: TextStyle(color: AppColors.dangerRed)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    if (_playingId == entry.id) {
+      await _player.stop();
+      setState(() => _playingId = null);
+    }
+    if (entry.audioPath != null) {
+      final file = File(entry.audioPath!);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+    await ref.read(historyRepositoryProvider).delete(entry.id);
+    ref.invalidate(historyProvider);
+  }
+
   Future<void> _shareAudio(HistoryEntry entry) async {
     if (entry.audioPath == null) return;
     await Share.shareXFiles(
@@ -129,6 +162,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                       style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
                                 ],
                               ),
+                            ),
+                            IconButton(
+                              onPressed: () => _deleteEntry(entry),
+                              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.textMuted, size: 20),
                             ),
                           ],
                         ),

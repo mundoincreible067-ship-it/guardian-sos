@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/providers.dart';
+import '../../../core/services/settings_repository.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/neon_background.dart';
 import '../../history/presentation/history_screen.dart';
@@ -11,6 +12,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settingsRepo = SettingsRepository();
     final countdown = ref.watch(countdownSecondsProvider);
     final instantSend = ref.watch(instantSendProvider);
     final vibrationOn = ref.watch(vibrationEnabledProvider);
@@ -54,7 +56,10 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Envío instantáneo',
                 subtitle: 'El botón manda el SOS de inmediato, sin espera',
                 value: instantSend,
-                onChanged: (v) => ref.read(instantSendProvider.notifier).state = v,
+                onChanged: (v) {
+                  ref.read(instantSendProvider.notifier).state = v;
+                  settingsRepo.setInstantSend(v);
+                },
               ),
               if (!instantSend) ...[
                 Padding(
@@ -78,7 +83,10 @@ class SettingsScreen extends ConsumerWidget {
                           max: 15,
                           divisions: 12,
                           label: '$countdown s',
-                          onChanged: (v) => ref.read(countdownSecondsProvider.notifier).state = v.round(),
+                          onChanged: (v) {
+                          ref.read(countdownSecondsProvider.notifier).state = v.round();
+                          settingsRepo.setCountdownSeconds(v.round());
+                        },
                         ),
                       ),
                     ],
@@ -90,25 +98,37 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Vibración',
                 subtitle: 'El teléfono vibra al activar el SOS',
                 value: vibrationOn,
-                onChanged: (v) => ref.read(vibrationEnabledProvider.notifier).state = v,
+                onChanged: (v) {
+                  ref.read(vibrationEnabledProvider.notifier).state = v;
+                  settingsRepo.setVibration(v);
+                },
               ),
               _RealSwitchTile(
                 title: 'Alarma sonora',
                 subtitle: 'Sirena en bucle mientras el SOS está activo',
                 value: alarmOn,
-                onChanged: (v) => ref.read(alarmEnabledProvider.notifier).state = v,
+                onChanged: (v) {
+                  ref.read(alarmEnabledProvider.notifier).state = v;
+                  settingsRepo.setAlarm(v);
+                },
               ),
               _RealSwitchTile(
                 title: 'Flash estroboscópico',
                 subtitle: 'La linterna parpadea mientras el SOS está activo',
                 value: ref.watch(flashEnabledProvider),
-                onChanged: (v) => ref.read(flashEnabledProvider.notifier).state = v,
+                onChanged: (v) {
+                  ref.read(flashEnabledProvider.notifier).state = v;
+                  settingsRepo.setFlash(v);
+                },
               ),
               _RealSwitchTile(
                 title: 'Grabar audio',
                 subtitle: 'Graba el ambiente como evidencia mientras el SOS está activo',
                 value: ref.watch(recordAudioEnabledProvider),
-                onChanged: (v) => ref.read(recordAudioEnabledProvider.notifier).state = v,
+                onChanged: (v) {
+                  ref.read(recordAudioEnabledProvider.notifier).state = v;
+                  settingsRepo.setRecordAudio(v);
+                },
               ),
               const _SwitchTilePending(title: 'Grabar video'),
               const _SwitchTilePending(title: 'Seguimiento en vivo (30 min)'),

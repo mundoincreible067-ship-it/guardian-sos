@@ -11,6 +11,7 @@ import '../../history/presentation/history_screen.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/location_service.dart';
+import '../../../core/services/background_guard_service.dart';
 import '../../../shared/widgets/neon_background.dart';
 import '../../../shared/widgets/guardian_logo.dart';
 
@@ -47,6 +48,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     _vibrationTimer?.cancel();
     ref.read(flashServiceProvider).stopStrobe();
     ref.read(audioRecordingServiceProvider).stopRecording();
+    BackgroundGuardService.stop();
     _ringController.dispose();
     _btnController.dispose();
     _iconController.dispose();
@@ -108,6 +110,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     }
     if (ref.read(recordAudioEnabledProvider)) {
       ref.read(audioRecordingServiceProvider).startRecording();
+      BackgroundGuardService.start();
     }
 
     final locationService = ref.read(locationServiceProvider);
@@ -184,6 +187,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     ref.read(flashServiceProvider).stopStrobe();
 
     final path = await ref.read(audioRecordingServiceProvider).stopRecording();
+    await BackgroundGuardService.stop();
 
     if (_lastSnapshot != null) {
       final entry = HistoryEntry(

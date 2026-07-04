@@ -83,6 +83,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="TU_GOOGLE_MAPS_API_KEY_AQUI"/>
 
+        <!-- Servicio necesario para que la grabación de audio siga activa
+             aunque el usuario minimice la app durante una emergencia. -->
+        <service
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:foregroundServiceType="microphone"
+            android:exported="false"/>
+
     </application>
 
     <!-- Necesario en Android 11+ para poder abrir WhatsApp/Telegram con url_launcher -->

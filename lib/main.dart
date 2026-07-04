@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 // import 'firebase_options.dart'; // generado por `flutterfire configure` (ver README)
 import 'core/theme/app_theme.dart';
 import 'core/providers.dart';
+import 'core/services/settings_repository.dart';
+import 'core/services/background_guard_service.dart';
 import 'features/splash/presentation/splash_screen.dart';
 
 Future<void> main() async {
@@ -14,8 +16,25 @@ Future<void> main() async {
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await _requestCorePermissions();
+  BackgroundGuardService.init();
 
-  runApp(const ProviderScope(child: GuardianSosApp()));
+  // Carga los ajustes que el usuario configuró la última vez, para que no
+  // se reinicien a los valores por defecto cada vez que se abre la app.
+  final savedSettings = await SettingsRepository().loadAll();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        instantSendProvider.overrideWith((ref) => savedSettings.instantSend),
+        vibrationEnabledProvider.overrideWith((ref) => savedSettings.vibration),
+        alarmEnabledProvider.overrideWith((ref) => savedSettings.alarm),
+        flashEnabledProvider.overrideWith((ref) => savedSettings.flash),
+        recordAudioEnabledProvider.overrideWith((ref) => savedSettings.recordAudio),
+        countdownSecondsProvider.overrideWith((ref) => savedSettings.countdownSeconds),
+      ],
+      child: const GuardianSosApp(),
+    ),
+  );
 }
 
 /// Solicita al arrancar los permisos imprescindibles para que el botón SOS
