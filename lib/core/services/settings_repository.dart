@@ -10,6 +10,7 @@ class SettingsRepository {
   static const _kRecordAudio = 'settings_record_audio';
   static const _kLiveTracking = 'settings_live_tracking';
   static const _kCountdownSeconds = 'settings_countdown_seconds';
+  static const _kPremiumUnlocked = 'settings_premium_unlocked';
 
   Future<SharedPreferences> get _prefs => SharedPreferences.getInstance();
 
@@ -20,6 +21,7 @@ class SettingsRepository {
   Future<void> setRecordAudio(bool v) async => (await _prefs).setBool(_kRecordAudio, v);
   Future<void> setLiveTracking(bool v) async => (await _prefs).setBool(_kLiveTracking, v);
   Future<void> setCountdownSeconds(int v) async => (await _prefs).setInt(_kCountdownSeconds, v);
+  Future<void> setPremiumUnlocked(bool v) async => (await _prefs).setBool(_kPremiumUnlocked, v);
 
   /// Carga todos los ajustes guardados de una vez (con valores por defecto
   /// si el usuario nunca los ha cambiado).
@@ -33,6 +35,7 @@ class SettingsRepository {
       recordAudio: prefs.getBool(_kRecordAudio) ?? true,
       liveTracking: prefs.getBool(_kLiveTracking) ?? true,
       countdownSeconds: prefs.getInt(_kCountdownSeconds) ?? 5,
+      premiumUnlocked: prefs.getBool(_kPremiumUnlocked) ?? false,
     );
   }
 }
@@ -46,6 +49,7 @@ class AppSettings {
   final bool recordAudio;
   final bool liveTracking;
   final int countdownSeconds;
+  final bool premiumUnlocked;
 
   AppSettings({
     required this.instantSend,
@@ -55,5 +59,6 @@ class AppSettings {
     required this.recordAudio,
     required this.liveTracking,
     required this.countdownSeconds,
+    required this.premiumUnlocked,
   });
 }

@@ -24,8 +24,12 @@ final recordAudioEnabledProvider = StateProvider<bool>((ref) => true);
 /// Seguimiento en vivo real al activar el SOS
 final liveTrackingEnabledProvider = StateProvider<bool>((ref) => true);
 
+/// Si el usuario desbloqueó las funciones premium
+final premiumUnlockedProvider = StateProvider<bool>((ref) => false);
+
 /// Puntos del recorrido durante el SOS activo, para dibujar la ruta en el mapa
 final routePointsProvider = StateProvider<List<LatLng>>((ref) => []);
+
 final messagingServiceProvider = Provider((ref) => MessagingService());
 final callServiceProvider = Provider((ref) => CallService());
 final contactsRepositoryProvider = Provider((ref) => ContactsRepository());

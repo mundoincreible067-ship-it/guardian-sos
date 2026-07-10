@@ -31,6 +31,7 @@ Future<void> main() async {
         flashEnabledProvider.overrideWith((ref) => savedSettings.flash),
         recordAudioEnabledProvider.overrideWith((ref) => savedSettings.recordAudio),
         liveTrackingEnabledProvider.overrideWith((ref) => savedSettings.liveTracking),
+        premiumUnlockedProvider.overrideWith((ref) => savedSettings.premiumUnlocked),
         countdownSecondsProvider.overrideWith((ref) => savedSettings.countdownSeconds),
       ],
       child: const GuardianSosApp(),

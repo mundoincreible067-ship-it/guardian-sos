@@ -6,6 +6,7 @@ import '../../../core/services/settings_repository.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/neon_background.dart';
 import '../../history/presentation/history_screen.dart';
+import '../../premium/presentation/premium_paywall.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -139,7 +140,12 @@ class SettingsScreen extends ConsumerWidget {
                   settingsRepo.setLiveTracking(v);
                 },
               ),
-              const _SwitchTilePending(title: 'Grabar video'),
+              const _SectionHeader('Guardian Premium'),
+              _PremiumBanner(unlocked: ref.watch(premiumUnlockedProvider)),
+              ...premiumFeatures.map((f) => _PremiumFeatureTile(
+                    feature: f,
+                    unlocked: ref.watch(premiumUnlockedProvider),
+                  )),
             ],
           ),
         ),
@@ -200,34 +206,77 @@ class _RealSwitchTile extends StatelessWidget {
   }
 }
 
-/// Interruptor de una función que aún no está conectada (próxima entrega).
-class _SwitchTilePending extends StatelessWidget {
-  final String title;
-  const _SwitchTilePending({required this.title});
+/// Franja superior de la sección Premium: muestra si está desbloqueada o no.
+class _PremiumBanner extends StatelessWidget {
+  final bool unlocked;
+  const _PremiumBanner({required this.unlocked});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.glassLight.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 14, fontWeight: FontWeight.w600)),
-                Text('Próxima entrega', style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 11)),
-              ],
-            ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => showPremiumPaywall(context),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: unlocked
+                ? [AppColors.successGreen.withOpacity(0.25), AppColors.accentCyan.withOpacity(0.15)]
+                : [AppColors.primaryPurple.withOpacity(0.4), AppColors.accentPink.withOpacity(0.3)]),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.glassBorder),
           ),
-          Switch(value: false, onChanged: null),
-        ],
+          child: Row(
+            children: [
+              Icon(unlocked ? Icons.workspace_premium_rounded : Icons.lock_rounded, color: Colors.white, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  unlocked ? 'Premium activo (modo prueba)' : 'Desbloquea 5 funciones extra',
+                  style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, color: Colors.white),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Una función Premium individual, con candado si no está desbloqueada.
+class _PremiumFeatureTile extends StatelessWidget {
+  final PremiumFeature feature;
+  final bool unlocked;
+  const _PremiumFeatureTile({required this.feature, required this.unlocked});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => showPremiumPaywall(context),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.glassLight,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.glassBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(feature.icon, color: unlocked ? AppColors.accentCyan : AppColors.textMuted, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(feature.title, style: GoogleFonts.inter(
+                color: unlocked ? Colors.white : AppColors.textMuted, fontSize: 14, fontWeight: FontWeight.w600,
+              )),
+            ),
+            Icon(unlocked ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
+                color: unlocked ? AppColors.successGreen : AppColors.textMuted, size: 18),
+          ],
+        ),
       ),
     );
   }
